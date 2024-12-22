@@ -1,3 +1,5 @@
+# location_app/products/routes.py
+
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from location_app import db
@@ -5,14 +7,14 @@ from location_app.models import Product
 from location_app.utils import roles_required
 from location_app.products.forms import ProductForm
 
-products_bp = Blueprint('products', __name__)
+products_bp = Blueprint('products', __name__, template_folder='templates/products')
 
 @products_bp.route('/')
 @login_required
 def list_products():
     if current_user.role == 'supplier':
         products = Product.query.filter_by(supplier_id=current_user.id).all()
-    elif current_user.role == 'admin' or current_user.role == 'client':
+    elif current_user.role in ['admin', 'client']:
         products = Product.query.all()
     else:
         flash('Accès refusé.', 'danger')
@@ -28,7 +30,8 @@ def add_product():
         product = Product(
             name=form.name.data,
             daily_price=form.daily_price.data,
-            supplier_id=current_user.id
+            supplier_id=current_user.id,
+            image_url=form.image_url.data  # **Ajout de l'URL de l'image depuis le formulaire**
         )
         db.session.add(product)
         db.session.commit()
@@ -48,6 +51,7 @@ def edit_product(product_id):
     if form.validate_on_submit():
         product.name = form.name.data
         product.daily_price = form.daily_price.data
+        product.image_url = form.image_url.data  # **Mise à jour de l'URL de l'image**
         db.session.commit()
         flash('Produit mis à jour avec succès.', 'success')
         return redirect(url_for('products.list_products'))
