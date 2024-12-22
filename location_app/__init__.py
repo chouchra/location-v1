@@ -1,6 +1,4 @@
-# location_app/__init__.py
-
-from flask import Flask, session
+from flask import Flask, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -58,5 +56,20 @@ def create_app():
             user = models.User.query.get(session['user_id'])
             return {'current_user': user}
         return {'current_user': None}
+
+    # Gestion des erreurs
+    @app.errorhandler(403)
+    def forbidden(e):
+        return render_template('403.html'), 403
+
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('404.html'), 404
+
+    # Gestion des erreurs
+    @app.errorhandler(500)
+    def internal_error(error):
+        db.session.rollback()
+        return render_template('500.html'), 500
 
     return app

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="text-center">
+        <h1>500 Internal Server Error</h1>
+        <p>Une erreur inattendue est survenue. Veuillez réessayer plus tard.</p>
+        <a href="{{ url_for('main.home') }}" class="btn btn-primary">Retour à l'Accueil</a>
+    </div>
+{% endblock %}
