@@ -1,10 +1,13 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+# location_app/rentals/routes.py
+
+from flask import Blueprint, redirect, url_for, flash, request, render_template
 from flask_login import login_required, current_user
 from location_app import db
 from location_app.models import Rental, Product, Notification
+from location_app.rentals.forms import RentalForm
 from location_app.utils import roles_required
 
-rentals_bp = Blueprint('rentals', __name__ )
+rentals_bp = Blueprint('rentals', __name__, template_folder='templates/rentals')
 
 @rentals_bp.route('/')
 @roles_required('client', 'admin')  # Admins peuvent voir toutes les locations
@@ -16,38 +19,35 @@ def list_rentals():
     else:
         flash('Accès refusé.', 'danger')
         return redirect(url_for('main.home'))
-    return render_template('rentals/rental.html', rentals=rentals)
-
-@rentals_bp.route('/rent/<int:product_id>', methods=['POST'])
+    return render_template('rentals/rental.html', rentals=rentals) 
+    
+@rentals_bp.route('/rent/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 @roles_required('client')  # Seuls les clients peuvent louer
 def rent_product(product_id):
     product = Product.query.get_or_404(product_id)
-    days = request.form.get('days', 1)
-    try:
-        days = int(days)
-        if days < 1:
-            raise ValueError
-    except ValueError:
-        flash('Nombre de jours invalide.', 'danger')
+    form = RentalForm()
+    if form.validate_on_submit():
+        days = form.days.data
+        # Créer une nouvelle location
+        rental = Rental(
+            user_id=current_user.id,
+            product_id=product.id,
+            days=days,
+            status='pending'
+        )
+        db.session.add(rental)
+        db.session.commit()  # Commit avant d'utiliser rental.id
+
+        # Ajouter une notification pour le fournisseur avec rental_id
+        notification = Notification(
+            user_id=product.supplier_id,
+            message=f"Nouvelle demande de location pour {product.name} par {current_user.username}.",
+            rental_id=rental.id
+        )
+        db.session.add(notification)
+        db.session.commit()
+
+        flash('Demande de location envoyée avec succès.', 'success')
         return redirect(url_for('main.home'))
-    
-    # Créer une nouvelle location
-    rental = Rental(
-        user_id=current_user.id,
-        product_id=product.id,
-        days=days,
-        status='pending'
-    )
-    db.session.add(rental)
-    
-    # Ajouter une notification pour le fournisseur
-    notification = Notification(
-        user_id=product.supplier_id,
-        message=f"Nouvelle demande de location pour {product.name} par {current_user.username}."
-    )
-    db.session.add(notification)
-    db.session.commit()
-    
-    flash('Demande de location envoyée avec succès.', 'success')
-    return redirect(url_for('rentals.list_rentals'))
+    return render_template('rentals/rent_product.html', form=form, product=product)

@@ -4,17 +4,30 @@
 {% block content %}
     <h2>Notifications</h2>
     {% if notifications %}
-        <ul>
-            {% for notif in notifications %}
-                <li {% if not notif.is_read %} style="font-weight:bold;" {% endif %}>
-                    {{ notif.message }} - {{ notif.created_at.strftime('%d/%m/%Y %H:%M') }}
-                    {% if not notif.is_read %}
-                        <a href="{{ url_for('notifications.mark_as_read', notification_id=notif.id) }}">Marquer comme lu</a>
-                    {% endif %}
-                </li>
+        <div class="list-group">
+            {% for notification in notifications %}
+                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        {{ notification.message }}
+                        <br>
+                        <small class="text-muted">{{ notification.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                    </div>
+                    <div>
+                        <!-- Bouton Accepter -->
+                        <form method="POST" action="{{ url_for('notifications.accept_notification', notification_id=notification.id) }}" style="display:inline;">
+                            {{ csrf_token() }}
+                            <button type="submit" class="btn btn-success btn-sm">Accepter</button>
+                        </form>
+                        <!-- Bouton Refuser -->
+                        <form method="POST" action="{{ url_for('notifications.refuse_notification', notification_id=notification.id) }}" style="display:inline;">
+                            {{ csrf_token() }}
+                            <button type="submit" class="btn btn-danger btn-sm">Refuser</button>
+                        </form>
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
-        <p>Aucune notification.</p>
+        <p>Aucune notification à afficher.</p>
     {% endif %}
 {% endblock %}

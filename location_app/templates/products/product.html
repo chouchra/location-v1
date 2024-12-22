@@ -1,3 +1,5 @@
+<!-- location_app/templates/products/product.html -->
+
 {% extends "base.html" %}
 {% block content %}
     <h2>Liste des Produits</h2>
@@ -9,9 +11,17 @@
             {% for product in products %}
                 <div class="col-md-4">
                     <div class="card mb-4">
+                        {% if product.image_url %}
+                            <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default_product.jpg') }}" class="card-img-top" alt="Image par défaut">
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">Prix Quotidien : {{ product.daily_price }} €/jour</p>
+                            <p class="card-text">
+                                <strong>Fournisseur :</strong> {{ product.supplier.username }}<br>
+                                <strong>Rating Fournisseur :</strong> {{ product.supplier.trust_index }}
+                            </p>
                             {% if current_user.role == 'client' %}
                                 <form method="POST" action="{{ url_for('rentals.rent_product', product_id=product.id) }}">
                                     <div class="mb-3">

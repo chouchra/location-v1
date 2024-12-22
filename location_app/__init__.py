@@ -5,11 +5,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from config import Config
+#from flask_wtf import CSRFProtect
 
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
+#csrf = CSRFProtect()
 
 def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -18,6 +20,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
+    #csrf.init_app(app)  # **Initialisation de CSRFProtect**
 
     # Importer les modèles après avoir initialisé db
     from location_app import models

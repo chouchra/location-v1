@@ -76,8 +76,10 @@ class Notification(db.Model):
     message = db.Column(db.String(255), nullable=False)
     is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    rental_id = db.Column(db.Integer, db.ForeignKey('rentals.id'), nullable=True)  # **Nouveau champ**
 
     user = db.relationship('User', back_populates='notifications')
+    rental = db.relationship('Rental')  # **Relation avec Rental**
 
     def __repr__(self):
         return f"<Notification {self.id} user={self.user_id} is_read={self.is_read}>"

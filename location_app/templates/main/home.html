@@ -1,28 +1,58 @@
+<!-- location_app/templates/main/home.html -->
+
 {% extends "base.html" %}
 {% block content %}
-    <h2>Nos Produits Disponibles</h2>
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <h2>Nos Produits Disponibles</h2>
+        <!-- Formulaire de recherche -->
+        <form class="d-flex" method="GET" action="{{ url_for('main.home') }}">
+            <input class="form-control me-2" type="search" placeholder="Rechercher des produits" aria-label="Search" name="search" value="{{ search_query }}">
+            <button class="btn btn-outline-success" type="submit">Rechercher</button>
+        </form>
+    </div>
+    
+    <!-- Liens conditionnels vers les dashboards -->
+    {% if current_user.is_authenticated %}
+        <div class="mb-4">
+            {% if current_user.role == 'supplier' %}
+                <a href="{{ url_for('supplier.dashboard') }}" class="btn btn-primary">Accéder au Dashboard Fournisseur</a>
+            {% elif current_user.role == 'client' %}
+                <a href="{{ url_for('rentals.list_rentals') }}" class="btn btn-primary">Accéder au Dashboard Client</a>
+            {% elif current_user.role == 'admin' %}
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary">Accéder au Dashboard Administrateur</a>
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    <!-- Affichage des produits -->
     {% if products %}
         <div class="row">
             {% for product in products %}
                 <div class="col-md-4">
                     <div class="card mb-4">
+                        <!-- Affichage de l'image du produit ou de l'image par défaut -->
+                        {% if product.image_url %}
+                            <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default_product.jpg') }}" class="card-img-top" alt="Image par défaut">
+                        {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">Prix Quotidien : {{ product.daily_price }} €/jour</p>
-                            {% if current_user.role == 'client' %}
+                            <p class="card-text">
+                                <strong>Fournisseur :</strong> {{ product.supplier.username }}<br>
+                                <strong>Rating Fournisseur :</strong> {{ product.supplier.trust_index }}
+                            </p>
+                            <!-- Options de location -->
+                            {% if current_user.is_authenticated and current_user.role == 'client' %}
                                 <form method="POST" action="{{ url_for('rentals.rent_product', product_id=product.id) }}">
-                                    {{ rent_form.hidden_tag() }}
-                                    <div class="mb-3">
-                                        {{ rent_form.days.label(class="form-label") }}
-                                        {{ rent_form.days(class="form-control") }}
+                                     <div class="mb-3">
+                                        <label for="days_{{ product.id }}" class="form-label">Nombre de jours</label>
+                                        <input type="number" name="days" id="days_{{ product.id }}" class="form-control" value="1" min="1" required>
                                     </div>
-                                    {{ rent_form.submit(class="btn btn-primary") }}
+                                    <button type="submit" class="btn btn-primary">Louer</button>
                                 </form>
-                            {% elif current_user.role in ['supplier', 'admin'] %}
-                                <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="btn btn-warning">Modifier</a>
-                                <form method="POST" action="{{ url_for('products.delete_product', product_id=product.id) }}" style="display:inline;">
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">Supprimer</button>
-                                </form>
+                            {% elif not current_user.is_authenticated %}
+                                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Se connecter pour louer</a>
                             {% endif %}
                         </div>
                     </div>
