@@ -1,0 +1,20 @@
+<!-- location_app/templates/notifications/notifications.html -->
+
+{% extends "base.html" %}
+{% block content %}
+    <h2>Notifications</h2>
+    {% if notifications %}
+        <ul>
+            {% for notif in notifications %}
+                <li {% if not notif.is_read %} style="font-weight:bold;" {% endif %}>
+                    {{ notif.message }} - {{ notif.created_at.strftime('%d/%m/%Y %H:%M') }}
+                    {% if not notif.is_read %}
+                        <a href="{{ url_for('notifications.mark_as_read', notification_id=notif.id) }}">Marquer comme lu</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune notification.</p>
+    {% endif %}
+{% endblock %}

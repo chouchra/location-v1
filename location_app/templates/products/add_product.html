@@ -1,0 +1,19 @@
+<!-- location_app/templates/products/add_product.html -->
+
+{% extends "base.html" %}
+{% block content %}
+    <h2>Ajouter un Produit</h2>
+    <form method="POST" action="">
+        <div>
+            <label for="name">Nom du produit</label><br>
+            <input type="text" name="name" id="name" required>
+        </div>
+        <div>
+            <label for="daily_price">Prix quotidien (€)</label><br>
+            <input type="number" step="0.01" name="daily_price" id="daily_price" required>
+        </div>
+        <div>
+            <button type="submit">Ajouter</button>
+        </div>
+    </form>
+{% endblock %}

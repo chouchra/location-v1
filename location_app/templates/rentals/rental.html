@@ -1,0 +1,17 @@
+<!-- location_app/templates/rentals/rental.html -->
+
+{% extends "base.html" %}
+{% block content %}
+    <h2>Mes Locations</h2>
+    {% if rentals %}
+        <ul>
+            {% for rental in rentals %}
+                <li>
+                    Produit: {{ rental.product.name }} - Jours: {{ rental.days }} - Statut: {{ rental.status }} - Date: {{ rental.created_at.strftime('%d/%m/%Y') }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune location effectuée.</p>
+    {% endif %}
+{% endblock %}

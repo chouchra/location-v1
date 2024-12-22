@@ -1,0 +1,22 @@
+<!-- location_app/templates/products/product.html -->
+
+{% extends "base.html" %}
+{% block content %}
+    <h2>Liste des Produits</h2>
+    {% if current_user.role == 'supplier' %}
+        <a href="{{ url_for('products.add_product') }}">Ajouter un produit</a>
+    {% endif %}
+    <ul>
+        {% for product in products %}
+            <li>
+                {{ product.name }} - {{ product.daily_price }} €/jour
+                {% if current_user.role == 'client' %}
+                    <form method="POST" action="{{ url_for('rentals.rent_product', product_id=product.id) }}">
+                        <input type="number" name="days" value="1" min="1" required>
+                        <button type="submit">Louer</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
