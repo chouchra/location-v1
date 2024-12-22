@@ -1,3 +1,5 @@
+# location_app/models.py
+
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -37,6 +39,7 @@ class Product(db.Model):
     daily_price = db.Column(db.Float, default=0.0)
     avg_rating_product = db.Column(db.Float, default=0.0)  # Champ pour la moyenne des notes
     supplier_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Référence à l'utilisateur fournisseur
+    image_url = db.Column(db.String(255), nullable=True)  # **Nouveau champ pour l'image du produit**
 
     rentals = db.relationship('Rental', back_populates='product', lazy=True)
     supplier = db.relationship('User', back_populates='products')  # Relation vers le fournisseur

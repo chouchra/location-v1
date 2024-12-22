@@ -1,4 +1,6 @@
-from flask import Flask, render_template, session
+# location_app/__init__.py
+
+from flask import Flask, session, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -39,6 +41,9 @@ def create_app():
     from location_app.admin.routes import admin_bp
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
+    from location_app.supplier import supplier_bp  # Import du blueprint supplier
+    app.register_blueprint(supplier_bp, url_prefix='/supplier')
+
     # Context Processor pour les notifications
     @app.context_processor
     def inject_notification_count():
@@ -66,9 +71,8 @@ def create_app():
     def page_not_found(e):
         return render_template('404.html'), 404
 
-    # Gestion des erreurs
     @app.errorhandler(500)
-    def internal_error(error):
+    def internal_error(e):
         db.session.rollback()
         return render_template('500.html'), 500
 
