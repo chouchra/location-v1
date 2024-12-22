@@ -39,7 +39,7 @@ class Product(db.Model):
     daily_price = db.Column(db.Float, default=0.0)
     avg_rating_product = db.Column(db.Float, default=0.0)  # Champ pour la moyenne des notes
     supplier_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Référence à l'utilisateur fournisseur
-    image_url = db.Column(db.String(255), nullable=True)  # **Nouveau champ pour l'image du produit**
+    image_url = db.Column(db.String(255), nullable=True)  # Nouveau champ pour l'image du produit
 
     rentals = db.relationship('Rental', back_populates='product', lazy=True)
     supplier = db.relationship('User', back_populates='products')  # Relation vers le fournisseur
@@ -64,6 +64,7 @@ class Rental(db.Model):
 
     user = db.relationship('User', back_populates='rentals')
     product = db.relationship('Product', back_populates='rentals')
+    notifications = db.relationship('Notification', back_populates='rental', lazy=True)
 
     def __repr__(self):
         return f"<Rental #{self.id}, status={self.status}>"
@@ -76,10 +77,10 @@ class Notification(db.Model):
     message = db.Column(db.String(255), nullable=False)
     is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    rental_id = db.Column(db.Integer, db.ForeignKey('rentals.id'), nullable=True)  # **Nouveau champ**
+    rental_id = db.Column(db.Integer, db.ForeignKey('rentals.id'), nullable=True)  # Nouveau champ
 
     user = db.relationship('User', back_populates='notifications')
-    rental = db.relationship('Rental')  # **Relation avec Rental**
+    rental = db.relationship('Rental', back_populates='notifications')  # Relation avec Rental
 
     def __repr__(self):
         return f"<Notification {self.id} user={self.user_id} is_read={self.is_read}>"

@@ -1,122 +1,17 @@
-<!-- location_app/templates/supplier/dashboard.html -->
+<!-- location_app/templates/rentals/rent_product.html -->
 
 {% extends "base.html" %}
 {% block content %}
-    <h2>Tableau de Bord Fournisseur</h2>
-
-    <!-- Blocs pour chaque statut de location -->
-    
-    <h3>Demandes en Attente</h3>
-    {% if rentals_pending %}
-        <div class="accordion mb-4" id="accordionPending">
-            {% for rental in rentals_pending %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingPending{{ rental.id }}">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePending{{ rental.id }}" aria-expanded="false" aria-controls="collapsePending{{ rental.id }}">
-                            Location #{{ rental.id }} - {{ rental.product.name }} par {{ rental.user.username }}
-                        </button>
-                    </h2>
-                    <div id="collapsePending{{ rental.id }}" class="accordion-collapse collapse" aria-labelledby="headingPending{{ rental.id }}" data-bs-parent="#accordionPending">
-                        <div class="accordion-body">
-                            <p><strong>Nombre de jours :</strong> {{ rental.days }}</p>
-                            <!-- Formulaire pour accepter la réservation -->
-                            <form method="POST" action="{{ url_for('supplier.update_rental', rental_id=rental.id) }}">
-                                {{ form.hidden_tag() }}
-                                <input type="hidden" name="action" value="accept">
-                                <button type="submit" class="btn btn-success">Accepter</button>
-                            </form>
-                            <!-- Formulaire pour refuser la réservation -->
-                            <form method="POST" action="{{ url_for('supplier.update_rental', rental_id=rental.id) }}" class="mt-2">
-                                {{ form.hidden_tag() }}
-                                <input type="hidden" name="action" value="refuse">
-                                <button type="submit" class="btn btn-danger">Refuser</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+    <h2>Louer {{ product.name }}</h2>
+    <form method="POST" action="{{ url_for('rentals.rent_product', product_id=product.id) }}">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.days.label(class="form-label") }}
+            {{ form.days(class="form-control") }}
+            {% for error in form.days.errors %}
+                <div class="text-danger">{{ error }}</div>
             {% endfor %}
         </div>
-    {% else %}
-        <p>Aucune demande en attente.</p>
-    {% endif %}
-
-    <h3>Locations Acceptées</h3>
-    {% if rentals_accepted %}
-        <div class="accordion mb-4" id="accordionAccepted">
-            {% for rental in rentals_accepted %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingAccepted{{ rental.id }}">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAccepted{{ rental.id }}" aria-expanded="false" aria-controls="collapseAccepted{{ rental.id }}">
-                            Location #{{ rental.id }} - {{ rental.product.name }} par {{ rental.user.username }}
-                        </button>
-                    </h2>
-                    <div id="collapseAccepted{{ rental.id }}" class="accordion-collapse collapse" aria-labelledby="headingAccepted{{ rental.id }}" data-bs-parent="#accordionAccepted">
-                        <div class="accordion-body">
-                            <p><strong>Nombre de jours :</strong> {{ rental.days }}</p>
-                            <!-- Formulaire pour commencer la location -->
-                            <form method="POST" action="{{ url_for('supplier.update_rental', rental_id=rental.id) }}">
-                                {{ form.hidden_tag() }}
-                                <input type="hidden" name="action" value="start">
-                                <button type="submit" class="btn btn-info">Commencer la Location</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>Aucune location acceptée.</p>
-    {% endif %}
-
-    <h3>Locations en Cours</h3>
-    {% if rentals_in_progress %}
-        <div class="accordion mb-4" id="accordionInProgress">
-            {% for rental in rentals_in_progress %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingInProgress{{ rental.id }}">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInProgress{{ rental.id }}" aria-expanded="false" aria-controls="collapseInProgress{{ rental.id }}">
-                            Location #{{ rental.id }} - {{ rental.product.name }} par {{ rental.user.username }}
-                        </button>
-                    </h2>
-                    <div id="collapseInProgress{{ rental.id }}" class="accordion-collapse collapse" aria-labelledby="headingInProgress{{ rental.id }}" data-bs-parent="#accordionInProgress">
-                        <div class="accordion-body">
-                            <p><strong>Nombre de jours :</strong> {{ rental.days }}</p>
-                            <!-- Formulaire pour terminer la location -->
-                            <form method="POST" action="{{ url_for('supplier.update_rental', rental_id=rental.id) }}">
-                                {{ form.hidden_tag() }}
-                                <input type="hidden" name="action" value="complete">
-                                <button type="submit" class="btn btn-secondary">Terminer la Location</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>Aucune location en cours.</p>
-    {% endif %}
-
-    <h3>Locations Terminées</h3>
-    {% if rentals_finished %}
-        <div class="accordion mb-4" id="accordionFinished">
-            {% for rental in rentals_finished %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingFinished{{ rental.id }}">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFinished{{ rental.id }}" aria-expanded="false" aria-controls="collapseFinished{{ rental.id }}">
-                            Location #{{ rental.id }} - {{ rental.product.name }} par {{ rental.user.username }}
-                        </button>
-                    </h2>
-                    <div id="collapseFinished{{ rental.id }}" class="accordion-collapse collapse" aria-labelledby="headingFinished{{ rental.id }}" data-bs-parent="#accordionFinished">
-                        <div class="accordion-body">
-                            <p><strong>Nombre de jours :</strong> {{ rental.days }}</p>
-                            <p><strong>Status :</strong> Terminé</p>
-                            <!-- Actions spécifiques pour les locations terminées peuvent être ajoutées ici -->
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>Aucune location terminée.</p>
-    {% endif %}
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
 {% endblock %}

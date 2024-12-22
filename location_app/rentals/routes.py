@@ -23,13 +23,12 @@ def list_rentals():
     
 @rentals_bp.route('/rent/<int:product_id>', methods=['GET', 'POST'])
 @login_required
-@roles_required('client')  # Seuls les clients peuvent louer
+@roles_required('client')
 def rent_product(product_id):
     product = Product.query.get_or_404(product_id)
     form = RentalForm()
     if form.validate_on_submit():
         days = form.days.data
-        # Créer une nouvelle location
         rental = Rental(
             user_id=current_user.id,
             product_id=product.id,
@@ -37,9 +36,8 @@ def rent_product(product_id):
             status='pending'
         )
         db.session.add(rental)
-        db.session.commit()  # Commit avant d'utiliser rental.id
+        db.session.commit()
 
-        # Ajouter une notification pour le fournisseur avec rental_id
         notification = Notification(
             user_id=product.supplier_id,
             message=f"Nouvelle demande de location pour {product.name} par {current_user.username}.",
