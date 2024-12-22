@@ -38,6 +38,9 @@ def create_app():
     from location_app.notifications.routes import notifications_bp
     app.register_blueprint(notifications_bp, url_prefix='/notifications')
 
+    from location_app.admin.routes import admin_bp
+    app.register_blueprint(admin_bp, url_prefix='/admin')
+
     # Context Processor pour les notifications
     @app.context_processor
     def inject_notification_count():

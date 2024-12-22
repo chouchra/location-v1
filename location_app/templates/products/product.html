@@ -1,22 +1,40 @@
-<!-- location_app/templates/products/product.html -->
-
 {% extends "base.html" %}
 {% block content %}
     <h2>Liste des Produits</h2>
     {% if current_user.role == 'supplier' %}
-        <a href="{{ url_for('products.add_product') }}">Ajouter un produit</a>
+        <a href="{{ url_for('products.add_product') }}" class="btn btn-primary mb-3">Ajouter un Produit</a>
     {% endif %}
-    <ul>
-        {% for product in products %}
-            <li>
-                {{ product.name }} - {{ product.daily_price }} €/jour
-                {% if current_user.role == 'client' %}
-                    <form method="POST" action="{{ url_for('rentals.rent_product', product_id=product.id) }}">
-                        <input type="number" name="days" value="1" min="1" required>
-                        <button type="submit">Louer</button>
-                    </form>
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
+    {% if products %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prix Quotidien (€)</th>
+                        {% if current_user.role in ['supplier', 'admin'] %}
+                            <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.daily_price }}</td>
+                            {% if current_user.role in ['supplier', 'admin'] %}
+                                <td>
+                                    <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning">Modifier</a>
+                                    <form method="POST" action="{{ url_for('products.delete_product', product_id=product.id) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">Supprimer</button>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>Aucun produit disponible.</p>
+    {% endif %}
 {% endblock %}

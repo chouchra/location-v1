@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Tableau de Bord Administrateur</h2>
+    <h3>Utilisateurs</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom d'utilisateur</th>
+                <th>Rôle</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.promote_user', user_id=user.id) }}" class="btn btn-sm btn-warning">Modifier le Rôle</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Produits</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom du Produit</th>
+                <th>Prix Quotidien (€)</th>
+                <th>Fournisseur</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.daily_price }}</td>
+                    <td>{{ product.supplier.username }}</td>
+                    <td>
+                        <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning">Modifier</a>
+                        <form method="POST" action="{{ url_for('products.delete_product', product_id=product.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
