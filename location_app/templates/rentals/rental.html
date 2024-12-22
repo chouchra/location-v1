@@ -1,16 +1,47 @@
-<!-- location_app/templates/rentals/rental.html -->
-
 {% extends "base.html" %}
 {% block content %}
     <h2>Mes Locations</h2>
     {% if rentals %}
-        <ul>
-            {% for rental in rentals %}
-                <li>
-                    Produit: {{ rental.product.name }} - Jours: {{ rental.days }} - Statut: {{ rental.status }} - Date: {{ rental.created_at.strftime('%d/%m/%Y') }}
-                </li>
-            {% endfor %}
-        </ul>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Nombre de Jours</th>
+                        <th>Status</th>
+                        <th>Date de Création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rental in rentals %}
+                        <tr>
+                            <td>{{ rental.product.name }}</td>
+                            <td>{{ rental.days }}</td>
+                            <td>{{ rental.status }}</td>
+                            <td>{{ rental.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                {% if rental.status == 'pending' %}
+                                    <span class="badge bg-warning">En attente</span>
+                                {% elif rental.status == 'accepted' %}
+                                    <span class="badge bg-success">Accepté</span>
+                                {% elif rental.status == 'refused' %}
+                                    <span class="badge bg-danger">Refusé</span>
+                                {% elif rental.status == 'in_progress' %}
+                                    <span class="badge bg-info">En cours</span>
+                                {% elif rental.status == 'finished' %}
+                                    <span class="badge bg-secondary">Terminé</span>
+                                {% elif rental.status == 'dispute' %}
+                                    <span class="badge bg-dark">Dispute</span>
+                                {% elif rental.status == 'canceled' %}
+                                    <span class="badge bg-dark">Annulé</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% else %}
         <p>Aucune location effectuée.</p>
     {% endif %}

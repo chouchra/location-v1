@@ -5,36 +5,33 @@
         <a href="{{ url_for('products.add_product') }}" class="btn btn-primary mb-3">Ajouter un Produit</a>
     {% endif %}
     {% if products %}
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Prix Quotidien (€)</th>
-                        {% if current_user.role in ['supplier', 'admin'] %}
-                            <th>Actions</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in products %}
-                        <tr>
-                            <td>{{ product.name }}</td>
-                            <td>{{ product.daily_price }}</td>
-                            {% if current_user.role in ['supplier', 'admin'] %}
-                                <td>
-                                    <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning">Modifier</a>
-                                    <form method="POST" action="{{ url_for('products.delete_product', product_id=product.id) }}" style="display:inline;">
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">Supprimer</button>
-                                    </form>
-                                </td>
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">Prix Quotidien : {{ product.daily_price }} €/jour</p>
+                            {% if current_user.role == 'client' %}
+                                <form method="POST" action="{{ url_for('rentals.rent_product', product_id=product.id) }}">
+                                    <div class="mb-3">
+                                        <label for="days_{{ product.id }}" class="form-label">Nombre de jours</label>
+                                        <input type="number" name="days" id="days_{{ product.id }}" class="form-control" value="1" min="1" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Louer</button>
+                                </form>
+                            {% elif current_user.role in ['supplier', 'admin'] %}
+                                <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="btn btn-warning">Modifier</a>
+                                <form method="POST" action="{{ url_for('products.delete_product', product_id=product.id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">Supprimer</button>
+                                </form>
                             {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     {% else %}
-        <p>Aucun produit disponible.</p>
+        <p>Aucun produit disponible pour le moment.</p>
     {% endif %}
 {% endblock %}

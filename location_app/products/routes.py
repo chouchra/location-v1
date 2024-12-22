@@ -5,14 +5,14 @@ from location_app.models import Product
 from location_app.utils import roles_required
 from location_app.products.forms import ProductForm
 
-products_bp = Blueprint('products', __name__ )
+products_bp = Blueprint('products', __name__)
 
 @products_bp.route('/')
 @login_required
 def list_products():
     if current_user.role == 'supplier':
         products = Product.query.filter_by(supplier_id=current_user.id).all()
-    elif current_user.role == 'admin':
+    elif current_user.role == 'admin' or current_user.role == 'client':
         products = Product.query.all()
     else:
         flash('Accès refusé.', 'danger')

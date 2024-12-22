@@ -1,7 +1,35 @@
-<!-- location_app/templates/main/home.html -->
-
 {% extends "base.html" %}
 {% block content %}
-    <h1>Bienvenue sur le Projet de Location</h1>
-    <p>Explorez nos produits et commencez à louer dès aujourd'hui !</p>
+    <h2>Nos Produits Disponibles</h2>
+    {% if products %}
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">Prix Quotidien : {{ product.daily_price }} €/jour</p>
+                            {% if current_user.role == 'client' %}
+                                <form method="POST" action="{{ url_for('rentals.rent_product', product_id=product.id) }}">
+                                    {{ rent_form.hidden_tag() }}
+                                    <div class="mb-3">
+                                        {{ rent_form.days.label(class="form-label") }}
+                                        {{ rent_form.days(class="form-control") }}
+                                    </div>
+                                    {{ rent_form.submit(class="btn btn-primary") }}
+                                </form>
+                            {% elif current_user.role in ['supplier', 'admin'] %}
+                                <a href="{{ url_for('products.edit_product', product_id=product.id) }}" class="btn btn-warning">Modifier</a>
+                                <form method="POST" action="{{ url_for('products.delete_product', product_id=product.id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">Supprimer</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Aucun produit disponible pour le moment.</p>
+    {% endif %}
 {% endblock %}
